@@ -83,8 +83,10 @@ where DATEDIFF(w1.recordDate, w2.recordDate) = 1
 # insert into Customer (id, name, referee_id) values ('6', 'Mark', '2');
 select customer.name
 from customer
-where referee_id is null
-   or referee_id != 2
+where
+    referee_id is null
+   or
+    referee_id != 2
 ;
 
 
@@ -165,5 +167,72 @@ from sales
 group by product.product_id
 having count(sales.sale_date between '2019-01-01' and '2019-03-31' or null) = count(*)
 ;
+
+
+# 1141. 查询近30天活跃用户数
+# Create table If Not Exists Activity (user_id int, session_id int, activity_date date, activity_type ENUM('open_session', 'end_session', 'scroll_down', 'send_message'));
+# Truncate table Activity;
+# insert into Activity (user_id, session_id, activity_date, activity_type) values ('1', '1', '2019-07-20', 'open_session');
+# insert into Activity (user_id, session_id, activity_date, activity_type) values ('1', '1', '2019-07-20', 'scroll_down');
+# insert into Activity (user_id, session_id, activity_date, activity_type) values ('1', '1', '2019-07-20', 'end_session');
+# insert into Activity (user_id, session_id, activity_date, activity_type) values ('2', '4', '2019-07-20', 'open_session');
+# insert into Activity (user_id, session_id, activity_date, activity_type) values ('2', '4', '2019-07-21', 'send_message');
+# insert into Activity (user_id, session_id, activity_date, activity_type) values ('2', '4', '2019-07-21', 'end_session');
+# insert into Activity (user_id, session_id, activity_date, activity_type) values ('3', '2', '2019-07-21', 'open_session');
+# insert into Activity (user_id, session_id, activity_date, activity_type) values ('3', '2', '2019-07-21', 'send_message');
+# insert into Activity (user_id, session_id, activity_date, activity_type) values ('3', '2', '2019-07-21', 'end_session');
+# insert into Activity (user_id, session_id, activity_date, activity_type) values ('4', '3', '2019-06-25', 'open_session');
+# insert into Activity (user_id, session_id, activity_date, activity_type) values ('4', '3', '2019-06-25', 'end_session');
+select activity_date           as day,
+       count(distinct user_id) as active_users
+from activity
+where datediff(activity_date, '2019-07-27') between -29 and 0
+group by activity_date
+;
+
+select datediff('2019-01-10', '2019-01-09'); # 1
+select datediff('2019-01-10', '2019-01-11');
+# -1
+
+# update employee set name = replace(name, 'e', 'E');
+
+# 1211. 查询结果的质量和占比
+# Create table If Not Exists Queries (query_name varchar(30), result varchar(50), position int, rating int);
+# Truncate table Queries;
+# insert into Queries (query_name, result, position, rating) values ('Dog', 'Golden Retriever', '1', '5');
+# insert into Queries (query_name, result, position, rating) values ('Dog', 'German Shepherd', '2', '5');
+# insert into Queries (query_name, result, position, rating) values ('Dog', 'Mule', '200', '1');
+# insert into Queries (query_name, result, position, rating) values ('Cat', 'Shirazi', '5', '2');
+# insert into Queries (query_name, result, position, rating) values ('Cat', 'Siamese', '3', '3');
+# insert into Queries (query_name, result, position, rating) values ('Cat', 'Sphynx', '7', '4');
+
+select query_name,
+       round(avg(rating / queries.position), 2)             as quality,
+       round(sum(if(rating < 3, 1, 0)) / count(*) * 100, 2) as poor_query_percentage
+from queries
+group by query_name
+;
+
+
+# 577. 员工奖金
+# Create table If Not Exists Employee1 (empId int, name varchar(255), supervisor int, salary int);
+# Create table If Not Exists Bonus1 (empId int, bonus int);
+# Truncate table Employee1;
+# insert into Employee1 (empId, name, supervisor, salary) values ('3', 'Brad', null, '4000');
+# insert into Employee1 (empId, name, supervisor, salary) values ('1', 'John', '3', '1000');
+# insert into Employee1 (empId, name, supervisor, salary) values ('2', 'Dan', '3', '2000');
+# insert into Employee1 (empId, name, supervisor, salary) values ('4', 'Thomas', '3', '4000');
+# Truncate table Bonus;
+# insert into Bonus (empId, bonus) values ('2', '500');
+# insert into Bonus (empId, bonus) values ('4', '2000');
+select name, bonus
+from employee1
+         left join bonus
+                   on employee1.empId=bonus.empId
+where bonus < 1000 or bonus is null;
+
+
+
+
 
 

@@ -62,7 +62,7 @@ public class Demo000Rotate {
             int current = start;
             int temp =
             current = ints[start];
-            ints[(start + k) % n] =
+            // ints[(start + k) % n] =
         }
 
     }
